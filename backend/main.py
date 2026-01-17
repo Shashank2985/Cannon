@@ -1,0 +1,69 @@
+"""
+Cannon App - FastAPI Backend
+Main application entry point
+"""
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+
+from config import settings
+from db import mongo_client
+from api import (
+    auth_router, users_router, scans_router, payments_router,
+    courses_router, events_router, forums_router, chat_router, leaderboard_router
+)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan events"""
+    # Startup
+    await mongo_client.connect()
+    yield
+    # Shutdown
+    await mongo_client.disconnect()
+
+
+# Create FastAPI app
+app = FastAPI(
+    title="Cannon API",
+    description="Premium Lookmaxxing App Backend",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins_list,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(auth_router, prefix="/api")
+app.include_router(users_router, prefix="/api")
+app.include_router(scans_router, prefix="/api")
+app.include_router(payments_router, prefix="/api")
+app.include_router(courses_router, prefix="/api")
+app.include_router(events_router, prefix="/api")
+app.include_router(forums_router, prefix="/api")
+app.include_router(chat_router, prefix="/api")
+app.include_router(leaderboard_router, prefix="/api")
+
+
+@app.get("/")
+async def root():
+    return {"message": "Cannon API", "version": "1.0.0"}
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=settings.debug)
