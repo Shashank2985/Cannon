@@ -3,21 +3,21 @@
  */
 
 export const colors = {
-    // Backgrounds
-    background: '#0D0D0D',
-    surface: '#1A1A1A',
-    surfaceLight: '#252525',
-    card: '#1E1E1E',
+    // Backgrounds (Figma: #0E0E0E base + gradient)
+    background: '#0E0E0E',
+    surface: '#171840',
+    surfaceLight: '#1E1E4A',
+    card: '#1A1A3A',
 
-    // Primary accent
-    primary: '#6C5CE7',
-    primaryLight: '#8B7CF7',
-    primaryDark: '#5A4BD1',
+    // Primary accent (Purple from gradient)
+    primary: '#6D37D4',
+    primaryLight: '#8B5CF6',
+    primaryDark: '#5B2BB8',
 
     // Text
     textPrimary: '#FFFFFF',
-    textSecondary: '#A0A0A0',
-    textMuted: '#666666',
+    textSecondary: '#B0B0C0',
+    textMuted: '#6B6B80',
 
     // Status
     success: '#00D26A',
@@ -26,17 +26,20 @@ export const colors = {
     info: '#3498DB',
 
     // UI Elements
-    border: '#2D2D2D',
-    borderLight: '#3D3D3D',
-    divider: '#252525',
+    border: '#2A2A4A',
+    borderLight: '#3A3A5A',
+    divider: '#252545',
 
-    // Gradients
-    gradientStart: '#6C5CE7',
-    gradientEnd: '#A29BFE',
+    // Gradients (Figma: #171840 to #6D37D4)
+    gradientStart: '#171840',
+    gradientEnd: '#6D37D4',
+
+    // Button
+    buttonText: '#FFFFFF',
 
     // Overlay
     overlay: 'rgba(0, 0, 0, 0.7)',
-    blur: 'rgba(13, 13, 13, 0.9)',
+    blur: 'rgba(14, 14, 14, 0.9)',
 };
 
 export const spacing = {
@@ -56,41 +59,50 @@ export const borderRadius = {
     full: 9999,
 };
 
+// Typography using Matter font (400 normal, 500 bold)
+// Matter-Regular.ttf and Matter-Medium.ttf must be in assets/fonts/
 export const typography = {
     h1: {
         fontSize: 32,
-        fontWeight: '700' as const,
+        fontFamily: 'Matter-Medium',
+        fontWeight: '500' as const,
         color: colors.textPrimary,
     },
     h2: {
         fontSize: 24,
-        fontWeight: '600' as const,
+        fontFamily: 'Matter-Medium',
+        fontWeight: '500' as const,
         color: colors.textPrimary,
     },
     h3: {
         fontSize: 20,
-        fontWeight: '600' as const,
+        fontFamily: 'Matter-Medium',
+        fontWeight: '500' as const,
         color: colors.textPrimary,
     },
     body: {
         fontSize: 16,
+        fontFamily: 'Matter-Regular',
         fontWeight: '400' as const,
         color: colors.textPrimary,
     },
     bodySmall: {
         fontSize: 14,
+        fontFamily: 'Matter-Regular',
         fontWeight: '400' as const,
         color: colors.textSecondary,
     },
     caption: {
         fontSize: 12,
+        fontFamily: 'Matter-Regular',
         fontWeight: '400' as const,
         color: colors.textMuted,
     },
     button: {
         fontSize: 16,
-        fontWeight: '600' as const,
-        color: colors.textPrimary,
+        fontFamily: 'Matter-Medium',
+        fontWeight: '500' as const,
+        color: colors.buttonText,
     },
 };
 

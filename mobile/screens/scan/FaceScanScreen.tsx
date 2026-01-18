@@ -1,15 +1,17 @@
 /**
- * Face Scan Screen - Capture 3 photos
+ * Face Scan Screen - Capture 3 photos with Figma design
  */
 
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Camera, CameraView } from 'expo-camera';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { colors, spacing, borderRadius, typography } from '../../theme/dark';
+import AnalyzingScreen from './AnalyzingScreen';
 
 const PHOTO_STEPS = [
     { key: 'front', label: 'Front View', instruction: 'Look straight at the camera' },
@@ -24,7 +26,8 @@ export default function FaceScanScreen() {
     const [hasPermission, setHasPermission] = useState<boolean | null>(null);
     const [currentStep, setCurrentStep] = useState<number>(0);
     const [photos, setPhotos] = useState<{ [key: string]: string }>({});
-    const [loading, setLoading] = useState<boolean>(false);
+    const [analyzing, setAnalyzing] = useState<boolean>(false);
+    const [analysisStep, setAnalysisStep] = useState<number>(0);
 
     React.useEffect(() => {
         (async () => {
@@ -45,21 +48,34 @@ export default function FaceScanScreen() {
         if (currentStep < PHOTO_STEPS.length - 1) {
             setCurrentStep(currentStep + 1);
         } else {
-            // All photos taken, upload
+            // All photos taken, start analysis
             await uploadPhotos({ ...photos, [step.key]: photo.uri });
         }
     };
 
     const uploadPhotos = async (allPhotos: { [key: string]: string }) => {
-        setLoading(true);
+        setAnalyzing(true);
+        setAnalysisStep(0);
+
         try {
             const front = { uri: allPhotos.front, type: 'image/jpeg', name: 'front.jpg' };
             const left = { uri: allPhotos.left, type: 'image/jpeg', name: 'left.jpg' };
             const right = { uri: allPhotos.right, type: 'image/jpeg', name: 'right.jpg' };
 
+            // Step 1: Analysing features
+            setAnalysisStep(0);
             const uploadResult = await api.uploadScanImages(front, left, right);
+
+            // Step 2: Calculating potential
+            setAnalysisStep(1);
             await api.analyzeScan(uploadResult.scan_id);
+
+            // Step 3: Generating transformation
+            setAnalysisStep(2);
             await refreshUser();
+
+            // Small delay to show completion
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
             // Route based on payment status
             if (isPaid) {
@@ -68,23 +84,35 @@ export default function FaceScanScreen() {
                 navigation.navigate('BlurredResult');
             }
         } catch (error) {
-            Alert.alert('Error', 'Failed to upload photos');
-        } finally {
-            setLoading(false);
+            Alert.alert('Error', 'Failed to analyze photos');
+            setAnalyzing(false);
         }
     };
 
+    // Show analyzing screen during processing
+    if (analyzing) {
+        return <AnalyzingScreen currentStep={analysisStep} />;
+    }
+
     if (hasPermission === null) {
-        return <View style={styles.container}><Text style={styles.text}>Requesting camera permission...</Text></View>;
+        return (
+            <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
+                <Text style={styles.text}>Requesting camera permission...</Text>
+            </LinearGradient>
+        );
     }
     if (hasPermission === false) {
-        return <View style={styles.container}><Text style={styles.text}>Camera permission required</Text></View>;
+        return (
+            <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
+                <Text style={styles.text}>Camera permission required</Text>
+            </LinearGradient>
+        );
     }
 
     const step = PHOTO_STEPS[currentStep];
 
     return (
-        <View style={styles.container}>
+        <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>{step.label}</Text>
                 <Text style={styles.instruction}>{step.instruction}</Text>
@@ -103,28 +131,29 @@ export default function FaceScanScreen() {
                 </CameraView>
             </View>
 
-            <TouchableOpacity style={styles.captureButton} onPress={takePhoto} disabled={loading}>
-                <Ionicons name={loading ? 'hourglass' : 'camera'} size={32} color={colors.textPrimary} />
+            <TouchableOpacity style={styles.captureButton} onPress={takePhoto}>
+                <Ionicons name="camera" size={32} color="#000000" />
             </TouchableOpacity>
 
-            <Text style={styles.hint}>{loading ? 'Analyzing...' : `Photo ${currentStep + 1} of 3`}</Text>
-        </View>
+            <Text style={styles.hint}>Photo {currentStep + 1} of 3</Text>
+        </LinearGradient>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.background },
+    container: { flex: 1 },
     header: { paddingTop: 60, paddingHorizontal: spacing.lg, alignItems: 'center' },
-    title: { ...typography.h2 },
-    instruction: { ...typography.bodySmall, marginTop: spacing.xs },
+    title: { ...typography.h2, color: '#FFFFFF' },
+    instruction: { ...typography.bodySmall, marginTop: spacing.xs, color: 'rgba(255,255,255,0.7)' },
     progress: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
-    progressDot: { width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border },
-    progressDotActive: { backgroundColor: colors.primary },
-    cameraContainer: { flex: 1, margin: spacing.lg, borderRadius: borderRadius.lg, overflow: 'hidden' },
+    progressDot: { width: 40, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.3)' },
+    progressDotActive: { backgroundColor: '#FFFFFF' },
+    cameraContainer: { flex: 1, margin: spacing.lg, borderRadius: borderRadius.lg, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)', borderStyle: 'dashed' },
     camera: { flex: 1 },
     overlay: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    faceGuide: { width: 250, height: 320, borderRadius: 125, borderWidth: 2, borderColor: colors.primary, borderStyle: 'dashed' },
-    captureButton: { width: 72, height: 72, borderRadius: 36, backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center', alignSelf: 'center', marginBottom: spacing.lg },
-    hint: { ...typography.bodySmall, textAlign: 'center', marginBottom: spacing.xl },
-    text: { ...typography.body, textAlign: 'center', marginTop: 100 },
+    faceGuide: { width: 250, height: 320, borderRadius: 125, borderWidth: 2, borderColor: '#FFFFFF', borderStyle: 'dashed' },
+    captureButton: { width: 72, height: 72, borderRadius: 36, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', alignSelf: 'center', marginBottom: spacing.lg },
+    hint: { ...typography.bodySmall, textAlign: 'center', marginBottom: spacing.xl, color: 'rgba(255,255,255,0.7)' },
+    text: { ...typography.body, textAlign: 'center', marginTop: 100, color: '#FFFFFF' },
 });
+

@@ -99,6 +99,69 @@ async def analyze_scan(scan_id: str, current_user: dict = Depends(get_current_us
             {"$set": {"analysis": analysis.model_dump(), "processing_status": "completed"}}
         )
         
+        # Update leaderboard entry for this user
+        user_id = current_user["id"]
+        overall_score = analysis.overall_score if hasattr(analysis, 'overall_score') else analysis.metrics.overall_score if hasattr(analysis, 'metrics') else 0
+        
+        # Get all completed scans for this user to calculate improvement
+        scan_cursor = db.scans.find({
+            "user_id": user_id,
+            "processing_status": "completed",
+            "analysis": {"$exists": True}
+        }).sort("created_at", -1)
+        
+        user_scans = []
+        async for s in scan_cursor:
+            score = s.get("analysis", {}).get("overall_score") or s.get("analysis", {}).get("metrics", {}).get("overall_score", 0)
+            user_scans.append({"score": score, "created_at": s.get("created_at")})
+        
+        # Calculate improvement percentage (compare first to latest)
+        improvement_percentage = 0
+        if len(user_scans) >= 2:
+            first_score = user_scans[-1]["score"] or 0
+            latest_score = user_scans[0]["score"] or 0
+            if first_score > 0:
+                improvement_percentage = ((latest_score - first_score) / first_score) * 100
+        
+        # Calculate score for leaderboard (based on overall_score * multiplier)
+        leaderboard_score = (float(overall_score) if overall_score else 0) * 10  # Scale to 100
+        
+        # Update or create leaderboard entry
+        existing_entry = await db.leaderboard.find_one({"user_id": user_id})
+        
+        if existing_entry:
+            # Update with new score if higher
+            new_score = max(existing_entry.get("score", 0), leaderboard_score)
+            await db.leaderboard.update_one(
+                {"user_id": user_id},
+                {
+                    "$set": {
+                        "score": new_score,
+                        "level": float(overall_score) if overall_score else 0,
+                        "improvement_percentage": improvement_percentage,
+                        "last_scan_at": datetime.utcnow()
+                    },
+                    "$inc": {"scans_count": 1}
+                }
+            )
+        else:
+            # Create new entry
+            await db.leaderboard.insert_one({
+                "user_id": user_id,
+                "score": leaderboard_score,
+                "level": float(overall_score) if overall_score else 0,
+                "streak_days": 1,
+                "improvement_percentage": 0,
+                "scans_count": 1,
+                "last_scan_at": datetime.utcnow(),
+                "created_at": datetime.utcnow()
+            })
+        
+        # Recalculate ranks for all leaderboard entries
+        all_entries = await db.leaderboard.find().sort("score", -1).to_list(None)
+        for rank, entry in enumerate(all_entries, 1):
+            await db.leaderboard.update_one({"_id": entry["_id"]}, {"$set": {"rank": rank}})
+        
         return {"message": "Analysis complete", "scan_id": scan_id}
     except Exception as e:
         await db.scans.update_one({"_id": ObjectId(scan_id)}, {"$set": {"processing_status": "failed", "error_message": str(e)}})

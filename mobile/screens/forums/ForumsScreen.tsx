@@ -4,6 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../../services/api';
@@ -51,7 +52,7 @@ export default function ForumsScreen() {
             })}
         >
             <View style={styles.forumIcon}>
-                <Ionicons name={getIcon(item.name)} size={24} color={colors.primary} />
+                <Ionicons name={getIcon(item.name)} size={24} color="#FFFFFF" />
             </View>
             <View style={styles.forumInfo}>
                 <Text style={styles.forumName}># {item.name}</Text>
@@ -65,7 +66,7 @@ export default function ForumsScreen() {
     );
 
     return (
-        <View style={styles.container}>
+        <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>Forums</Text>
                 <Text style={styles.subtitle}>Join the community</Text>
@@ -77,24 +78,26 @@ export default function ForumsScreen() {
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.list}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
+                showsVerticalScrollIndicator={false}
             />
-        </View>
+        </LinearGradient>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.background },
+    container: { flex: 1 },
     header: { paddingTop: 60, paddingHorizontal: spacing.lg, paddingBottom: spacing.md },
-    title: { ...typography.h2 },
-    subtitle: { ...typography.caption },
+    title: { ...typography.h2, color: '#FFFFFF' },
+    subtitle: { ...typography.caption, color: 'rgba(255,255,255,0.6)' },
     list: { padding: spacing.lg },
-    forumCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md },
-    forumIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.surfaceLight, justifyContent: 'center', alignItems: 'center' },
+    forumCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: borderRadius.lg, padding: spacing.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
+    forumIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' },
     forumInfo: { flex: 1, marginLeft: spacing.md },
-    forumName: { ...typography.body, fontWeight: '600' },
-    forumDesc: { ...typography.caption, marginTop: 2 },
+    forumName: { ...typography.body, fontWeight: '600', color: '#FFFFFF' },
+    forumDesc: { ...typography.caption, marginTop: 2, color: 'rgba(255,255,255,0.6)' },
     forumMeta: { alignItems: 'center' },
-    threadCount: { ...typography.h3, color: colors.primary },
-    threadLabel: { ...typography.caption },
+    threadCount: { ...typography.h3, color: '#FFFFFF' },
+    threadLabel: { ...typography.caption, color: 'rgba(255,255,255,0.5)' },
     separator: { height: spacing.md },
 });
+
