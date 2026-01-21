@@ -1,5 +1,5 @@
 """
-Forum Models - Discord-like community features
+Channel Models - Discord-like chat channels
 """
 
 from pydantic import BaseModel, Field
@@ -7,8 +7,8 @@ from typing import Optional, List
 from datetime import datetime
 
 
-class ForumCreate(BaseModel):
-    """Request to create a new forum channel (admin)"""
+class ChannelCreate(BaseModel):
+    """Request to create a new channel (admin)"""
     name: str
     slug: str = Field(description="URL-friendly identifier")
     description: str
@@ -17,15 +17,15 @@ class ForumCreate(BaseModel):
     order: int = Field(default=0, description="Display order")
 
 
-class ForumResponse(BaseModel):
-    """Forum channel response"""
+class ChannelResponse(BaseModel):
+    """Channel response"""
     id: str
     name: str
     slug: str
     description: str
     is_admin_only: bool
     icon: Optional[str] = None
-    thread_count: int = 0
+    message_count: int = 0
     last_activity: Optional[datetime] = None
     created_at: datetime
     
@@ -33,8 +33,8 @@ class ForumResponse(BaseModel):
         from_attributes = True
 
 
-class ForumInDB(BaseModel):
-    """Full forum model as stored in database"""
+class ChannelInDB(BaseModel):
+    """Full channel model as stored in database"""
     name: str
     slug: str
     description: str
@@ -44,80 +44,34 @@ class ForumInDB(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
-class ThreadCreate(BaseModel):
-    """Request to create a new thread"""
-    forum_id: str
-    title: str
+class MessageCreate(BaseModel):
+    """Request to send a message in a channel"""
     content: str
 
 
-class ThreadResponse(BaseModel):
-    """Thread response for API"""
+class MessageResponse(BaseModel):
+    """Message response for API"""
     id: str
-    forum_id: str
-    forum_name: Optional[str] = None
+    channel_id: str
     user_id: str
-    user_email: Optional[str] = None
-    title: str
+    user_email: str
     content: str
     created_at: datetime
-    updated_at: datetime
-    reply_count: int = 0
-    is_pinned: bool = False
-    is_locked: bool = False
+    is_admin: bool = False
     
     class Config:
         from_attributes = True
 
 
-class ThreadInDB(BaseModel):
-    """Full thread model as stored in database"""
-    forum_id: str
+class MessageInDB(BaseModel):
+    """Full message model as stored in database"""
+    channel_id: str
     user_id: str
-    title: str
     content: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-    reply_count: int = 0
-    is_pinned: bool = False
-    is_locked: bool = False
 
 
-class ReplyCreate(BaseModel):
-    """Request to create a reply"""
-    thread_id: str
-    content: str
-    parent_reply_id: Optional[str] = Field(default=None, description="For nested replies")
-
-
-class ReplyResponse(BaseModel):
-    """Reply response for API"""
-    id: str
-    thread_id: str
-    user_id: str
-    user_email: Optional[str] = None
-    content: str
-    created_at: datetime
-    updated_at: datetime
-    parent_reply_id: Optional[str] = None
-    is_deleted: bool = False
-    
-    class Config:
-        from_attributes = True
-
-
-class ReplyInDB(BaseModel):
-    """Full reply model as stored in database"""
-    thread_id: str
-    user_id: str
-    content: str
-    parent_reply_id: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-    is_deleted: bool = False
-
-
-class ThreadWithReplies(BaseModel):
-    """Thread with its replies"""
-    thread: ThreadResponse
-    replies: List[ReplyResponse] = Field(default_factory=list)
+# Legacy aliases for backwards compatibility during migration
+ForumCreate = ChannelCreate
+ForumResponse = ChannelResponse
+ForumInDB = ChannelInDB

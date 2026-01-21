@@ -45,9 +45,9 @@ export default function ForumsScreen() {
     const renderForum = ({ item }: { item: any }) => (
         <TouchableOpacity
             style={styles.forumCard}
-            onPress={() => navigation.navigate('ForumDetail', {
-                forumId: item.id,
-                forumName: item.name,
+            onPress={() => navigation.navigate('ChannelChat', {
+                channelId: item.id,
+                channelName: item.name,
                 isAdminOnly: item.is_admin_only
             })}
         >
@@ -58,18 +58,15 @@ export default function ForumsScreen() {
                 <Text style={styles.forumName}># {item.name}</Text>
                 <Text style={styles.forumDesc}>{item.description}</Text>
             </View>
-            <View style={styles.forumMeta}>
-                <Text style={styles.threadCount}>{item.thread_count}</Text>
-                <Text style={styles.threadLabel}>threads</Text>
-            </View>
+            <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.4)" />
         </TouchableOpacity>
     );
 
     return (
         <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.title}>Forums</Text>
-                <Text style={styles.subtitle}>Join the community</Text>
+                <Text style={styles.title}>Channels</Text>
+                <Text style={styles.subtitle}>Join the conversation</Text>
             </View>
 
             <FlatList

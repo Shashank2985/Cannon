@@ -9,7 +9,7 @@ import * as SecureStore from 'expo-secure-store';
 // For Android Emulator: http://10.0.2.2:8000/api
 // For iOS Simulator: http://localhost:8000/api  
 // For physical devices (Expo Go): Use your computer's local IP
-const API_BASE_URL = 'http://10.145.91.182:8000/api';
+const API_BASE_URL = 'http://10.145.43.137:8000/api';
 
 class ApiService {
     private client: AxiosInstance;
@@ -198,30 +198,25 @@ class ApiService {
         return response.data;
     }
 
-    // Forums
-    async getForums() {
+    // Channels (Discord-like chat)
+    async getChannels() {
         const response = await this.client.get('/forums');
         return response.data;
     }
 
-    async getThreads(forumId: string, page: number = 1) {
-        const response = await this.client.get(`/forums/${forumId}/threads`, { params: { page } });
+    async getChannelMessages(channelId: string, limit: number = 50) {
+        const response = await this.client.get(`/forums/${channelId}/messages`, { params: { limit } });
         return response.data;
     }
 
-    async getThread(threadId: string) {
-        const response = await this.client.get(`/forums/threads/${threadId}`);
+    async sendChannelMessage(channelId: string, content: string) {
+        const response = await this.client.post(`/forums/${channelId}/messages`, { content });
         return response.data;
     }
 
-    async createThread(forumId: string, title: string, content: string) {
-        const response = await this.client.post(`/forums/${forumId}/threads`, { forum_id: forumId, title, content });
-        return response.data;
-    }
-
-    async addReply(threadId: string, content: string) {
-        const response = await this.client.post(`/forums/threads/${threadId}/reply`, { thread_id: threadId, content });
-        return response.data;
+    // Legacy alias for getChannels
+    async getForums() {
+        return this.getChannels();
     }
 
     // Leaderboard

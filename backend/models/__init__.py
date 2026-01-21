@@ -34,10 +34,14 @@ from .event import (
     EventInDB
 )
 from .forum import (
+    ChannelCreate,
+    ChannelResponse,
+    ChannelInDB,
+    MessageCreate,
+    MessageResponse,
+    MessageInDB,
+    # Legacy aliases
     ForumCreate,
     ForumResponse,
-    ThreadCreate,
-    ThreadResponse,
-    ReplyCreate,
-    ReplyResponse
+    ForumInDB
 )

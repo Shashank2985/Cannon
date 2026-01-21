@@ -22,9 +22,7 @@ import ProfileScreen from '../screens/profile/ProfileScreen';
 import CourseListScreen from '../screens/courses/CourseListScreen';
 import CourseDetailScreen from '../screens/courses/CourseDetailScreen';
 import ChapterViewScreen from '../screens/courses/ChapterViewScreen';
-import ForumDetailScreen from '../screens/forums/ForumDetailScreen';
-import ThreadDetailScreen from '../screens/forums/ThreadDetailScreen';
-import CreateThreadScreen from '../screens/forums/CreateThreadScreen';
+import ChannelChatScreen from '../screens/forums/ChannelChatScreen';
 import TabNavigator from './TabNavigator';
 
 const Stack = createNativeStackNavigator();
@@ -81,10 +79,8 @@ export function RootNavigator() {
                     <Stack.Screen name="CourseDetail" component={CourseDetailScreen} options={{ headerShown: false }} />
                     <Stack.Screen name="ChapterView" component={ChapterViewScreen} options={{ headerShown: false }} />
 
-                    {/* Forum Screens */}
-                    <Stack.Screen name="ForumDetail" component={ForumDetailScreen} options={{ headerShown: false }} />
-                    <Stack.Screen name="ThreadDetail" component={ThreadDetailScreen} options={{ headerShown: false }} />
-                    <Stack.Screen name="CreateThread" component={CreateThreadScreen} options={{ headerShown: false, presentation: 'modal' }} />
+                    {/* Channel Chat Screen */}
+                    <Stack.Screen name="ChannelChat" component={ChannelChatScreen} options={{ headerShown: false }} />
                 </>
             )}
         </Stack.Navigator>
