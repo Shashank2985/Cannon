@@ -9,7 +9,7 @@ import * as SecureStore from 'expo-secure-store';
 // For Android Emulator: http://10.0.2.2:8000/api
 // For iOS Simulator: http://localhost:8000/api  
 // For physical devices (Expo Go): Use your computer's local IP
-const API_BASE_URL = 'http://10.145.43.137:8000/api';
+const API_BASE_URL = 'http://10.145.94.67:8000/api';
 
 class ApiService {
     private client: AxiosInstance;

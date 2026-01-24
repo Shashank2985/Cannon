@@ -59,7 +59,11 @@ export default function CannonChatScreen() {
 
     return (
         <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.container}>
-            <KeyboardAvoidingView style={styles.keyboardView} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            <KeyboardAvoidingView
+                style={styles.keyboardView}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+            >
                 <View style={styles.header}>
                     <Text style={styles.title}>Cannon</Text>
                     <Text style={styles.subtitle}>Your Lookmaxxing Coach</Text>
